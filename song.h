@@ -24,7 +24,7 @@
 #define C5 	523
 #define Db5 554
 #define D5 	587
-#define Eb5 622
+#define Eb5 632
 #define E5 	659
 #define F5 	698
 #define Gb5 740
@@ -33,7 +33,8 @@
 #define A5 	880
 #define Bb5 932
 #define B5	988
-#define C6	1047
+#define C6	1046
+#define Db6	1109
 #define D6	1175
 #define Eb6 1244
 #define E6	1318
