@@ -27,6 +27,8 @@ int main ()
 				case 'p':
 				case 'P': // Play Song
 						Timer2_Play(PlayList[idx]);
+                        if (idx == 0)
+                            Timer1_Play(PlayList[1]);
                 break;
 				
                 case 'V': // Increase Volume
@@ -41,12 +43,16 @@ int main ()
 				case 'N':
                 if (idx < 2)
                     Timer2_Play(PlayList[++idx]);
+                if (idx == 0)
+                        Timer1_Play(PlayList[1]);
                 break;
 
 				case 'b':
 				case 'B':
                     if (idx > 0)
                         Timer2_Play(PlayList[--idx]);
+                    if (idx == 0)
+                            Timer1_Play(PlayList[1]);
                 break;
             }
 		}

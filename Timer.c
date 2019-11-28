@@ -9,9 +9,11 @@
 
 uint8_t TICKS(uint16_t frec) {	return frec ? ((16E6/1024)/frec) : 0 ; }
 
-volatile static uint8_t isPlaying,PlayingNote,persent=50;
+volatile static uint8_t isPlaying,PlayingNote,PlayingNote1,persent=50;
 volatile static uint16_t noteTime,silenceTime,idx;
+volatile static uint16_t noteTime1,silenceTime1,idx1;
 volatile static Note *song;
+volatile static Note *song1;
 static char str[20];
 
 void Timer0_Ini ( void )
@@ -27,33 +29,62 @@ ISR(TIMER0_COMPA_vect)
 { 
 	if (isPlaying)
 	{
-		if (!noteTime && !idx && PlayingNote)
-			Timer2_Freq_Gen(TICKS(pgm_read_word(&song[idx].freq)));
-		
-		if (noteTime == pgm_read_word(&song[idx].delay) && PlayingNote)
-		{
-			noteTime = 0;
-			PlayingNote = 0;
-			Timer2_Freq_Gen(0);
-		}
-
-		if (!PlayingNote)
-		{
-			silenceTime++;
-			if (silenceTime == SILENCE)
+		// TIMER 0
+			if (!noteTime && !idx && PlayingNote)
+				Timer2_Freq_Gen(TICKS(pgm_read_word(&song[idx].freq)));
+			
+			if (noteTime == pgm_read_word(&song[idx].delay) && PlayingNote)
 			{
-				Timer2_Freq_Gen(TICKS(pgm_read_word(&song[++idx].freq)));
-				silenceTime = 0;
-				PlayingNote = TRUE;
+				noteTime = 0;
+				PlayingNote = 0;
+				Timer2_Freq_Gen(0);
 			}
-		}
-		noteTime++;
 
-		if (pgm_read_word(&song[idx].freq) == fin && isPlaying)
-		{
-			idx = 0;
-			noteTime = 0;
-		}
+			if (!PlayingNote)
+			{
+				silenceTime++;
+				if (silenceTime == SILENCE)
+				{
+					Timer2_Freq_Gen(TICKS(pgm_read_word(&song[++idx].freq)));
+					silenceTime = 0;
+					PlayingNote = TRUE;
+				}
+			}
+			noteTime++;
+
+			if (pgm_read_word(&song[idx].freq) == fin && isPlaying)
+			{
+				idx = 0;
+				noteTime = 0;
+			}
+		// TIMER 1
+			if (!noteTime1 && !idx1 && PlayingNote1)
+				Timer1_Freq_Gen(TICKS(pgm_read_word(&song1[idx1].freq)));
+			
+			if (noteTime1 == pgm_read_word(&song1[idx1].delay) && PlayingNote1)
+			{
+				noteTime1 = 0;
+				PlayingNote1 = 0;
+				Timer1_Freq_Gen(0);
+			}
+
+			if (!PlayingNote1)
+			{
+				silenceTime1++;
+				if (silenceTime1 == SILENCE)
+				{
+					Timer1_Freq_Gen(TICKS(pgm_read_word(&song1[++idx1].freq)));
+					silenceTime1 = 0;
+					PlayingNote1 = TRUE;
+				}
+			}
+			noteTime1++;
+
+			if (pgm_read_word(&song1[idx1].freq) == fin && isPlaying)
+			{
+				idx1 = 0;
+				noteTime1 = 0;
+			}	
 	}
 }
 
@@ -92,7 +123,6 @@ void Timer2_Play(const Note song_ptr[])
 	idx = 0;
 	PlayingNote = TRUE;
 	TCNT0 = 0;
-	UART0_puts(itoa(str,pgm_read_word(&song[0].freq),10));
 }
 
 void Timer2_Volume(int8_t direction)
@@ -103,4 +133,44 @@ void Timer2_Volume(int8_t direction)
 	gotoxy(0,6);
 	UART0_puts("Volume = ");
 	UART0_puts(itoa(str,persent,10));
+}
+
+
+void Timer1_Freq_Gen(uint8_t ticks)
+{
+	if (pgm_read_word(&song[idx1].freq) == fin)
+		return;
+
+	if (pgm_read_word(&song[idx1].freq) == 0 || persent == 0 )
+	{
+		TCCR1A = 0; 
+		TCCR1B = 0;
+		return;
+	}
+	if (ticks > 0)
+	{
+		DDRB |= (1<<PB6);
+		TCNT1 = 0;
+		OCR1AL = ticks;
+		OCR1BL = ((OCR1AL/2)*persent)/100;
+		TCCR1A = (3<<WGM10) | (2<<COM1B0);
+		TCCR1B = (3<<WGM12) | (5<<CS10);
+	}
+	else
+	{
+		TCCR1B &= ~(5<<CS10);
+		PORTB &= ~(1<<PB6);
+	}
+}
+
+void Timer1_Play(const Note song_ptr[])
+{
+	song1 =(Note *) song_ptr;
+    //isPlaying = TRUE;
+	noteTime1 = 0;
+	idx1 = 0;
+	PlayingNote1 = TRUE;
+	TCNT1 = 0;
+	OCR1AH = 0;
+	OCR1BH = 0;
 }
