@@ -3,6 +3,7 @@
 #include <avr/pgmspace.h>
 
 volatile static Note *song;
+volatile static Note nota;
 volatile static uint8_t idx = 0;
 
 int main ()
@@ -24,37 +25,103 @@ int main ()
         {
 			switch (UART0_getch())
             {
-				case 'p':
-				case 'P': // Play Song
-						Timer2_Play(PlayList[idx]);
-                        if (idx == 0)
-                            Timer1_Play(PlayList[1]);
+				case 'q':
+                    nota.delay = 200;
+                    nota.freq = C4;
+
                 break;
 				
-                case 'V': // Increase Volume
-						Timer2_Volume(1);
+                case '2':
+                    nota.delay = 200;
+                    nota.freq = Db4;
+
                 break;
 				
-                case 'v':// Decrease Volume
-						Timer2_Volume(-1);
+                case 'w':
+                    nota.delay = 200;
+                    nota.freq = D4;
+
                 break;   
 
-				case 'n':
-				case 'N':
-                if (idx < 2)
-                    Timer2_Play(PlayList[++idx]);
-                if (idx == 0)
-                        Timer1_Play(PlayList[1]);
+				case '3':
+                    nota.delay = 200;
+                    nota.freq = Eb4;
+
                 break;
 
-				case 'b':
-				case 'B':
-                    if (idx > 0)
-                        Timer2_Play(PlayList[--idx]);
-                    if (idx == 0)
-                            Timer1_Play(PlayList[1]);
+				case 'e':
+                    nota.delay = 200;
+                    nota.freq = E4;
+
                 break;
+
+                case '4':
+                    nota.delay = 200;
+                    nota.freq = F4;
+                break;
+
+                case 'r':
+                    nota.delay = 200;
+                    nota.freq = Gb4;
+                break;
+
+                case '5':
+                    nota.delay = 200;
+                    nota.freq = G4;
+                break;
+
+                case 't':
+                    nota.delay = 200;
+                    nota.freq = Ab4;
+                break;
+
+                case '6':
+                    nota.delay = 200;
+                    nota.freq = A4;
+                break;
+
+                case 'y':
+                    nota.delay = 200;
+                    nota.freq = Bb4;
+                break;
+
+                case '7':
+                    nota.delay = 200;
+                    nota.freq = B4;
+                break;
+
+                case 'u':
+                    nota.delay = 200;
+                    nota.freq = C5;
+                break;
+
+                case '8':
+                    nota.delay = 200;
+                    nota.freq = Db5;
+                break;
+
+                case 'i':
+                    nota.delay = 200;
+                    nota.freq = D5;
+                break;
+
+                case '9':
+                    nota.delay = 200;
+                    nota.freq = Eb5;
+                break;
+
+                case 'o':
+                    nota.delay = 200;
+                    nota.freq = E5;
+                break;
+
+                default:
+                    nota.freq = 0;
+                    UART0_puts("ACABO!!!!");
+                break;
+                
             }
+            Timer2_PlayFromKey(nota);
 		}
     }
     return 0;

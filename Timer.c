@@ -9,11 +9,13 @@
 
 uint8_t TICKS(uint16_t frec) {	return frec ? ((16E6/1024)/frec) : 0 ; }
 
-volatile static uint8_t isPlaying,PlayingNote,PlayingNote1,persent=50;
+volatile static uint8_t isPlayingSong,PlayingNote,PlayingNote1,persent=50;
 volatile static uint16_t noteTime,silenceTime,idx;
 volatile static uint16_t noteTime1,silenceTime1,idx1;
 volatile static Note *song;
 volatile static Note *song1;
+volatile static Note nota;
+
 static char str[20];
 
 void Timer0_Ini ( void )
@@ -27,7 +29,19 @@ void Timer0_Ini ( void )
 
 ISR(TIMER0_COMPA_vect)
 { 
-	if (isPlaying)
+	// LOGICA TECLADO
+	if (!isPlayingSong && PlayingNote)
+	{
+		if (!noteTime) Timer2_Freq_Gen(TICKS(nota.freq));
+		if(nota.delay < noteTime)
+		{
+			StopTimer();
+			PlayingNote = 0;
+		}
+		noteTime++;
+	}
+/*
+	if (isPlayingSong)
 	{
 		// TIMER 0
 			if (!noteTime && !idx && PlayingNote)
@@ -52,7 +66,7 @@ ISR(TIMER0_COMPA_vect)
 			}
 			noteTime++;
 
-			if (pgm_read_word(&song[idx].freq) == fin && isPlaying)
+			if (pgm_read_word(&song[idx].freq) == fin && isPlayingSong)
 			{
 				idx = 0;
 				noteTime = 0;
@@ -80,24 +94,28 @@ ISR(TIMER0_COMPA_vect)
 			}
 			noteTime1++;
 
-			if (pgm_read_word(&song1[idx1].freq) == fin && isPlaying)
+			if (pgm_read_word(&song1[idx1].freq) == fin && isPlayingSong)
 			{
 				idx1 = 0;
 				noteTime1 = 0;
 			}	
 	}
+*/
 }
 
 void Timer2_Freq_Gen(uint8_t ticks)
 {
-	if (pgm_read_word(&song[idx].freq) == fin)
-		return;
-
-	if (pgm_read_word(&song[idx].freq) == 0 || persent == 0 )
+	if (isPlayingSong && PlayingNote)
 	{
-		TCCR2A = 0; 
-		TCCR2B = 0;
-		return;
+		if (pgm_read_word(&song[idx].freq) == fin)
+			return;
+
+		if (pgm_read_word(&song[idx].freq) == 0 || persent == 0 )
+		{
+			TCCR2A = 0; 
+			TCCR2B = 0;
+			return;
+		}
 	}
 	if (ticks > 0)
 	{
@@ -118,7 +136,7 @@ void Timer2_Freq_Gen(uint8_t ticks)
 void Timer2_Play(const Note song_ptr[])
 {
 	song =(Note *) song_ptr;
-    isPlaying = TRUE;
+    isPlayingSong = TRUE;
 	noteTime = 0;
 	idx = 0;
 	PlayingNote = TRUE;
@@ -166,11 +184,27 @@ void Timer1_Freq_Gen(uint8_t ticks)
 void Timer1_Play(const Note song_ptr[])
 {
 	song1 =(Note *) song_ptr;
-    //isPlaying = TRUE;
+    //isPlayingSong = TRUE;
 	noteTime1 = 0;
 	idx1 = 0;
 	PlayingNote1 = TRUE;
 	TCNT1 = 0;
 	OCR1AH = 0;
 	OCR1BH = 0;
+}
+
+void Timer2_PlayFromKey (Note nt)
+{
+	
+	nota = nt;
+	PlayingNote = 1;
+	isPlayingSong = 0;
+	noteTime = 0;
+	if (nt.freq == 0 || persent == 0) StopTimer();
+}
+
+void StopTimer()
+{
+	TCCR2A = 0; 
+	TCCR2B = 0;
 }
