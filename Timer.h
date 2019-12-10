@@ -11,5 +11,7 @@ void Timer2_PlayFromKey (Note nt);
 void Timer1_Freq_Gen(uint8_t ticks);
 void Timer1_Play(const Note song_ptr[]);
 void Timer1_Volume(int8_t direction);
+void Start_Record();
+void Stop_Record();
 
 #endif

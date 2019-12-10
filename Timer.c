@@ -9,7 +9,7 @@
 
 uint8_t TICKS(uint16_t frec) {	return frec ? ((16E6/1024)/frec) : 0 ; }
 
-volatile static uint8_t isPlayingSong,PlayingNote,PlayingNote1,persent=50;
+volatile static uint8_t isHolding,isRecording,isPlayingSong,PlayingNote,PlayingNote1,persent=50;
 volatile static uint16_t noteTime,silenceTime,idx;
 volatile static uint16_t noteTime1,silenceTime1,idx1;
 volatile static Note *song;
@@ -32,76 +32,17 @@ ISR(TIMER0_COMPA_vect)
 	// LOGICA TECLADO
 	if (!isPlayingSong && PlayingNote)
 	{
-		if (!noteTime) Timer2_Freq_Gen(TICKS(nota.freq));
-		if(nota.delay < noteTime)
-		{
-			StopTimer();
-			PlayingNote = 0;
-		}
-		noteTime++;
+		//if (!isHolding)
+			Timer2_Freq_Gen(TICKS(C4));
+		
+		if (isRecording) noteTime++;
 	}
-/*
-	if (isPlayingSong)
-	{
-		// TIMER 0
-			if (!noteTime && !idx && PlayingNote)
-				Timer2_Freq_Gen(TICKS(pgm_read_word(&song[idx].freq)));
-			
-			if (noteTime == pgm_read_word(&song[idx].delay) && PlayingNote)
-			{
-				noteTime = 0;
-				PlayingNote = 0;
-				Timer2_Freq_Gen(0);
-			}
-
-			if (!PlayingNote)
-			{
-				silenceTime++;
-				if (silenceTime == SILENCE)
-				{
-					Timer2_Freq_Gen(TICKS(pgm_read_word(&song[++idx].freq)));
-					silenceTime = 0;
-					PlayingNote = TRUE;
-				}
-			}
-			noteTime++;
-
-			if (pgm_read_word(&song[idx].freq) == fin && isPlayingSong)
-			{
-				idx = 0;
-				noteTime = 0;
-			}
-		// TIMER 1
-			if (!noteTime1 && !idx1 && PlayingNote1)
-				Timer1_Freq_Gen(TICKS(pgm_read_word(&song1[idx1].freq)));
-			
-			if (noteTime1 == pgm_read_word(&song1[idx1].delay) && PlayingNote1)
-			{
-				noteTime1 = 0;
-				PlayingNote1 = 0;
-				Timer1_Freq_Gen(0);
-			}
-
-			if (!PlayingNote1)
-			{
-				silenceTime1++;
-				if (silenceTime1 == SILENCE)
-				{
-					Timer1_Freq_Gen(TICKS(pgm_read_word(&song1[++idx1].freq)));
-					silenceTime1 = 0;
-					PlayingNote1 = TRUE;
-				}
-			}
-			noteTime1++;
-
-			if (pgm_read_word(&song1[idx1].freq) == fin && isPlayingSong)
-			{
-				idx1 = 0;
-				noteTime1 = 0;
-			}	
-	}
-*/
 }
+
+void SetHold() { isHolding = 1; }
+void ClrHold() { isHolding = 0; }
+void Start_Record() { isRecording = 1; }
+void Stop_Record() { isRecording = 0; }
 
 void Timer2_Freq_Gen(uint8_t ticks)
 {
@@ -184,7 +125,6 @@ void Timer1_Freq_Gen(uint8_t ticks)
 void Timer1_Play(const Note song_ptr[])
 {
 	song1 =(Note *) song_ptr;
-    //isPlayingSong = TRUE;
 	noteTime1 = 0;
 	idx1 = 0;
 	PlayingNote1 = TRUE;
