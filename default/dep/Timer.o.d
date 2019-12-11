@@ -13,7 +13,8 @@ Timer.o: ../Timer.c c:/winavr-20071221/bin/../avr/include/avr/io.h \
   ../song.h c:/winavr-20071221/bin/../avr/include/avr/pgmspace.h \
   c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stddef.h \
   ../Utility.h c:/winavr-20071221/bin/../avr/include/stdio.h \
-  c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stdarg.h ../UART.h
+  c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stdarg.h ../UART.h \
+  c:/winavr-20071221/bin/../avr/include/math.h
 
 c:/winavr-20071221/bin/../avr/include/avr/io.h:
 
@@ -54,3 +55,5 @@ c:/winavr-20071221/bin/../avr/include/stdio.h:
 c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stdarg.h:
 
 ../UART.h:
+
+c:/winavr-20071221/bin/../avr/include/math.h:
