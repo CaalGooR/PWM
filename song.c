@@ -95,7 +95,7 @@ const Note ImperialMarch[] PROGMEM={
     {fin,0} // End Song
 	//and we're done
 };
-
+/*
 const Note MetaKnight[] PROGMEM={
     {E4, TEMPO*1/2},
 	{E4, TEMPO*1/2},
@@ -169,7 +169,7 @@ const Note MetaKnight[] PROGMEM={
 	{Eb4, TEMPO*1/4},
 	{D4, TEMPO*4},
 
-    /*Cambio*/
+    //Cambio
     {B4, TEMPO},
 	{B5, TEMPO},
 	{Gb5, TEMPO*5/8},
@@ -219,8 +219,7 @@ const Note MetaKnight[] PROGMEM={
     {B5, TEMPO*2},
 	{fin,0}
     
-};
-
+}; */
 const Note AngelesAzules[] PROGMEM={
 	{B3, TEMPO_500*3/8},
 	{D4, TEMPO_500*3/8},
@@ -1009,7 +1008,7 @@ PGM_VOID_P const PlayList[] ={
 	Ken_Melody,
 	Ken_CMelody,
 	ImperialMarch,
-	MetaKnight,
+	//MetaKnight,
 	AngelesAzules
 };
 

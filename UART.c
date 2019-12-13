@@ -39,7 +39,7 @@ void UART_Ini (uint8_t com,uint32_t baudrate,uint8_t size, uint8_t parity, uint8
 
 void UART0_sendData(const char data)
 {
-    while (!(UCSR0A & (1<<UDRE0)));
+    //while (!(UCSR0A & (1<<UDRE0)));
     UDR0 = data;
 }
 

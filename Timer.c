@@ -10,7 +10,7 @@
 
 uint8_t TICKS(uint16_t frec) {	return frec ? ((16E6/1024)/frec) : 0 ; }
 
-volatile static uint8_t isHolding,isRecording,isPlayingSong,PlayingNote,PlayingNote1;
+volatile static uint8_t isHolding,isRecording,isPlayingSong = 0,PlayingNote,PlayingNote1;
 volatile static uint16_t noteTime,silenceTime,idx,last_freq = 0;
 volatile static uint16_t noteTime1,silenceTime1,idx1;
 volatile static Note *song;
@@ -37,7 +37,7 @@ ISR(TIMER0_COMPA_vect)
 	{
 		if ((!isHolding && nota.freq) || nota.freq != last_freq)
 		{
-			if (isRecording)
+			if (isRecording && nota.freq != last_freq)
 			{
 				song[idx].freq = last_freq;
 				song[idx++].delay = noteTime;
@@ -57,9 +57,10 @@ ISR(TIMER0_COMPA_vect)
 			}
 			if (nota.freq != 0 && PlayingNote)
 			{
+				/*
 				song[idx].freq = last_freq;
 				song[idx++].delay = silenceTime;
-			 	silenceTime = 0;
+			 	silenceTime = 0;*/
 			}
 		}
 	}
@@ -73,7 +74,7 @@ ISR(TIMER0_COMPA_vect)
 			if (noteTime == song[idx].delay && PlayingNote)
 			{
 				noteTime = 0;
-				PlayingNote = 0;
+				PlayingNote = FALSE;
 				Timer2_Freq_Gen(0);
 			}
 
@@ -89,7 +90,7 @@ ISR(TIMER0_COMPA_vect)
 			}
 			noteTime++;
 
-			if (song[idx].freq == fin && isPlayingSong)
+			if (song[idx].freq == fin)
 			{
 				idx = 0;
 				noteTime = 0;
@@ -128,17 +129,19 @@ ISR(TIMER0_COMPA_vect)
 void SetHold() { isHolding = 1; }
 void ClrHold() { isHolding = 0; }
 uint8_t getHoldFlag () {return isHolding + '0';}
+
 void Start_Record(Note *rec_song) 
 {
 	idx = 0;
 	song =(Note *) rec_song;
-	isRecording = 1; 
+	isRecording = TRUE; 
 }
+
 uint8_t Stop_Record() 
 {
-	isRecording = 0;
+	isRecording = FALSE;
 	song[idx].freq = fin;
-	song[idx++].delay = 10;
+	song[idx++].delay = SILENCE;
 	return idx;
 }
 
@@ -146,13 +149,12 @@ void Timer2_Freq_Gen(uint8_t ticks)
 {
 	if (isPlayingSong)
 	{
-		if (pgm_read_word(&song[idx].freq) == fin)
+		if (song[idx].freq == fin)
 			return;
 
-		if (pgm_read_word(&song[idx].freq) == 0 || persent == 0 )
+		if (song[idx].freq == 0 || persent == 0 )
 		{
-			TCCR2A = 0; 
-			TCCR2B = 0;
+			StopTimer();
 			return;
 		}
 	}
@@ -172,19 +174,15 @@ void Timer2_Freq_Gen(uint8_t ticks)
 	}
 }
 
-void Timer2_Play(const Note song_ptr[])
+void Timer2_Play(Note song_ptr[])
 {
 	song =(Note *) song_ptr;
-	idx = 0;
-	while (song[idx].freq != fin)
-	{
-		UART0_puts(itoa(str,song[idx++].freq,10));
-		UART0_puts("\n\r");
-	}
     isPlayingSong = TRUE;
-	noteTime = 0;
-	idx = 0;
+	UART0_putchar(isPlayingSong + '0');
 	PlayingNote = TRUE;
+	noteTime = 0;
+	silenceTime = 0;
+	idx = 0;
 	TCNT0 = 0;
 }
 
@@ -249,9 +247,9 @@ void Timer1_Play(const Note song_ptr[])
 void Timer2_PlayFromKey (Note nt)
 {
 	nota = nt;
-	PlayingNote = 1;
-	isPlayingSong = 0;
-	noteTime = 0;
+	PlayingNote = TRUE;
+	isPlayingSong = FALSE;
+	UART0_putchar(isRecording + '0');
 	if (nt.freq == 0 || persent == 0) StopTimer();
 }
 
@@ -260,3 +258,5 @@ void StopTimer()
 	TCCR2A = 0; 
 	TCCR2B = 0;
 }
+
+uint8_t getPlayingSongFlag(){return isPlayingSong;}

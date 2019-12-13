@@ -1,5 +1,6 @@
 #include "UART.h"
 #include "Timer.h"
+#include "Utility.h"
 #include <avr/pgmspace.h>
 
 volatile static Note *song;
@@ -8,6 +9,8 @@ volatile static uint8_t idx = 0;
 volatile static uint16_t timesNotHolding = 0;
 volatile static char op,last_pressed = 0;
 volatile static Note song_arr[256];
+
+char str[20];
 
 int main ()
 {
@@ -60,10 +63,10 @@ int main ()
                     setColor(WHITE);
                 break;
                 case 'n':
-                    Stop_Record();
                     gotoxy(20,20);
                     setColor(RED);
-                    UART0_puts("NOT RECORDING...");
+                    UART0_puts(itoa(str,Stop_Record(),10));
+                    UART0_puts(" NOT RECORDING...");
                     setColor(WHITE);
                 break;
                 case 'P':
@@ -92,7 +95,8 @@ int main ()
         }
         gotoxy(0,10);
         UART0_putchar(getHoldFlag());
-        Timer2_PlayFromKey(nota);
+        if (!getPlayingSongFlag()) 
+            Timer2_PlayFromKey(nota);
     }
     return 0;
 }

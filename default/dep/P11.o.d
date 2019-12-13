@@ -12,7 +12,9 @@ P11.o: ../P11.c ../UART.h \
   c:/winavr-20071221/bin/../avr/include/avr/lock.h \
   c:/winavr-20071221/bin/../avr/include/avr/interrupt.h ../Timer.h \
   ../song.h c:/winavr-20071221/bin/../avr/include/avr/pgmspace.h \
-  c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stddef.h
+  c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stddef.h \
+  ../Utility.h c:/winavr-20071221/bin/../avr/include/stdio.h \
+  c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stdarg.h
 
 ../UART.h:
 
@@ -47,3 +49,9 @@ c:/winavr-20071221/bin/../avr/include/avr/interrupt.h:
 c:/winavr-20071221/bin/../avr/include/avr/pgmspace.h:
 
 c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stddef.h:
+
+../Utility.h:
+
+c:/winavr-20071221/bin/../avr/include/stdio.h:
+
+c:\winavr-20071221\bin\../lib/gcc/avr/4.2.2/include/stdarg.h:
